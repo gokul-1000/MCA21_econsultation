@@ -8,7 +8,7 @@ import os
 import plotly.express as px 
 import matplotlib.pyplot as plt
 import datetime
-
+import spacy
 # --- Imports from Friend's FastAPI Backend Logic ---
 import subprocess
 import sys
