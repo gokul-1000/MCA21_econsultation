@@ -46,38 +46,58 @@ SENTIMENT_COLORS = {
     "Neutral": MCA_COLORS["NEUTRAL_GRAY"],
 }
 
-# Global Model Loading
+# Yeh code uss jagah par puraana code replace karega
+# Jahan aapne pehle spaCy check aur load karne ki koshish ki thi.
+
+# Zaroori: Make sure 'spacy' is imported at the top of your file.
+# import spacy 
+# from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+# from wordcloud import STOPWORDS 
+# (Agar aapke imports file ke top par hain, to yahan sirf function body aayegi)
+
+# --- Global Model Loading (Replaced and Fixed) ---
 @st.cache_resource
 def load_analysis_models():
-    """Load heavy models once and cache them."""
+    """Load heavy models once and cache them.
+    
+    Assumption: 'spacy' and 'en_core_web_md' model are installed via requirements.txt
+    """
+    
+    # 1. Load the spaCy Model
     try:
-        # Load the medium-sized spaCy model for NER and similarity checks
         NLP_MODEL = spacy.load("en_core_web_md")
-    except NameError:
-        st.error("spaCy not found. Please ensure spaCy is installed: pip install spacy")
-        st.stop()
+    
     except OSError:
-        st.info("Downloading spaCy model 'en_core_web_md'...")
-        subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_md"])
-        NLP_MODEL = spacy.load("en_core_web_md")
+        # Agar model requirements.txt mein nahi mila, to yeh error dega.
+        # Ham yahan koi installation try nahi kar sakte.
+        st.error(
+            "⚠️ **SpaCy Model Missing!** Please check your `requirements.txt`."
+        )
+        st.warning("Ensure these two lines are present in your `requirements.txt` for deployment:")
+        st.code(
+            """
+spacy==3.7.1
+https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1-py3-none-any.whl#egg=en_core_web_md
+            """
+        )
+        st.stop()
+    except NameError:
+        # Agar 'spacy' module hi install nahi hua
+        st.error("⚠️ **spaCy Library Missing!** Please ensure 'spacy' is in your `requirements.txt`.")
+        st.stop()
 
+
+    # 2. Initialize Sentiment Analyzer (assuming you have this import)
     SENTIMENT_ANALYZER = SentimentIntensityAnalyzer()
     
-    # Use standard WordCloud STOPWORDS for better generation
+    # 3. Initialize Stopwords (assuming you have this import)
     STOPWORDS_SET = set(STOPWORDS)
 
     return NLP_MODEL, SENTIMENT_ANALYZER, STOPWORDS_SET
 
-# Check and install spacy if missing
-try:
-    import spacy
-except ImportError:
-    st.info("Installing spaCy...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "spacy"])
-    import spacy
-    
+# --- Function Call ---
+# Yeh line load_analysis_models function ke turant baad honi chahiye.
 NLP_MODEL, SENTIMENT_ANALYZER, STOPWORDS_SET = load_analysis_models()
-
 # --- 2. ADAPTED ANALYSIS CORE FUNCTIONS ---
 
 @lru_cache(maxsize=128)
