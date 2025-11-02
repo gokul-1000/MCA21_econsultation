@@ -9,4 +9,4 @@ numpy
 wordcloud
 vaderSentiment
 # Spacy (Agar aapne pichle error ke baad spacy ko requirements.txt me add nahi kiya tha)
-# spacy
+spacy
