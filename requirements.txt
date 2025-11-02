@@ -1,6 +1,12 @@
+# --- Core Streamlit and Data Handling ---
 streamlit
 pandas
 plotly
 matplotlib
+numpy
+
+# --- NLP and Sentiment Analysis Libraries ---
 wordcloud
 vaderSentiment
+# Spacy (Agar aapne pichle error ke baad spacy ko requirements.txt me add nahi kiya tha)
+# spacy
