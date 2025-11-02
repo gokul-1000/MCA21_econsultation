@@ -9,6 +9,7 @@ numpy
 wordcloud
 vaderSentiment
 # Spacy (Agar aapne pichle error ke baad spacy ko requirements.txt me add nahi kiya tha)
-spacy==3.7.1
+
+spacy==3.7.1 
+# spaCy model URL (Check for latest version if 3.7.1 is old)
 https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1-py3-none-any.whl#egg=en_core_web_md
-            
