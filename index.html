@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Consultation Module - Ministry of Corporate Affairs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJzL3jM6lYh4f/J+R2+P+4/p6+q4n+f+a1j7M6qB1f4r/E4kM6/q4i6n4h8Z6+A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Define Brand Colors using CSS variables */
+        :root {
+            --mca-blue-dark: #1b3a6d; /* Header/Primary Bar, Footer Background */
+            --mca-blue-light: #48a6a6; /* Accent Blue, Hover Color */
+            --mca-red: #c53030; /* Red emphasis */
+            --mca-green: #27ae60; /* Green accent */
+            --mca-gray-bg: #f7f7f7; /* Light background */
+            --mca-light-blue-bg: #e6f0fa; /* Very light blue for subtle section background */
+            --mca-orange-dark: #ff9933; /* Orange/Saffron for the 'What is' underline */
+            --mca-footer-bg: #354e66; /* Dark slate blue */
+            --mca-footer-link-color: #f7f7f7;
+            --mca-footer-text-color: #aaaaaa;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mca-gray-bg);
+        }
+        .top-nav { background-color: white; border-bottom: 1px solid #e5e7eb; }
+        .main-nav { background-color: var(--mca-blue-dark); color: white; }
+        .main-nav a { padding: 1.5rem 2rem; display: block; white-space: nowrap; transition: background-color 0.2s; font-size: 1rem; font-weight: 600; } 
+        .main-nav a.active { background-color: var(--mca-blue-light); } 
+        .main-nav a:hover:not(.active) { background-color: var(--mca-blue-light); } 
+        /* Content Box styling */
+        .content-box { border-radius: 0.5rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); background-color: white; border: 1px solid #eee; } 
+
+        .e-consult-header { 
+            background-color: white; 
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid var(--mca-orange-dark); 
+            margin-bottom: 0.5rem; 
+        }
+        .sub-nav-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .sub-nav-item.active {
+            background-color: var(--mca-light-blue-bg);
+            border-radius: 4px;
+            color: var(--mca-blue-dark);
+        }
+        .sub-nav-item:hover:not(.active) {
+            color: var(--mca-blue-light);
+        }
+        .orange-underline {
+            width: 100%; 
+            height: 3px; 
+            background-color: var(--mca-orange-dark); 
+            margin-top: 0.5rem;
+        }
+
+        /* Footer Styling */
+        .main-footer {
+            background-color: var(--mca-footer-bg); 
+            color: white;
+            padding: 3rem 0 1.5rem 0; 
+            margin-top: 4rem; 
+        }
+        .footer-content {
+            max-width: 1536px; 
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .quick-links-section {
+            padding-bottom: 2.5rem;
+        }
+        .footer-heading {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: white; 
+            border-bottom: 3px solid var(--mca-orange-dark); 
+            display: inline-block;
+            padding-bottom: 0.25rem;
+            line-height: 1;
+        }
+        .links-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1rem;
+        }
+        .links-columns ul li a {
+            font-size: 0.95rem;
+            line-height: 2.2;
+            color: var(--mca-footer-link-color); 
+            transition: color 0.2s;
+            display: inline-block;
+        }
+        .links-columns ul li a:hover {
+            color: var(--mca-orange-dark); 
+            text-decoration: underline;
+        }
+        .footer-bottom-bar {
+            border-top: 1px solid rgba(255, 255, 255, 0.2); 
+            font-size: 0.875rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            color: var(--mca-footer-text-color); 
+        }
+        .footer-bottom-bar > p { 
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .social-media {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; 
+        }
+        .social-icon {
+            display: inline-flex;
+            width: 32px; 
+            height: 32px;
+            background-color: var(--mca-blue-light); 
+            border-radius: 5px; 
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: white;
+            font-size: 1.1rem;
+        }
+        .social-icon:hover {
+            background-color: var(--mca-orange-dark); 
+        }
+        .social-media span:first-child { 
+            color: var(--mca-footer-link-color);
+            font-weight: 600;
+        }
+
+        .scroll-to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--mca-orange-dark); 
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0; 
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(50px);
+            z-index: 1000;
+        }
+        .scroll-to-top-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Layout */
+        @media (max-width: 1023px) {
+            .top-nav { padding: 1rem; }
+            .top-nav > div { flex-direction: column; align-items: flex-start; }
+            .search-container { margin-top: 1rem; width: 100%; }
+            /* Adjust image size for mobile if necessary */
+            .top-nav img.header-banner { height: 60px; width: auto; }
+            .top-nav p { font-size: 1rem; }
+            .top-nav .text-sm { font-size: 0.75rem; }
+            .footer-bottom-bar { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    
+
+<div class="top-nav px-8 py-4">
+        <div class="max-w-full mx-auto flex justify-between items-center h-auto">
+            
+            <div class="flex items-center space-x-4">
+                
+
+<img 
+                    src="./Emblem_of_India_svg.png" 
+                    alt="Ministry of Corporate Affairs Logo and Slogan" 
+                    class="h-20 object-contain header-banner"
+                    onerror="this.onerror=null; this.src='https://placehold.co/400x80/1b3a6d/ffffff?text=MCA+Header'"
+                >
+            </div>
+
+            <div class="hidden lg:flex items-center search-container">
+                <div class="relative w-80"> <input 
+                        type="text" 
+                        placeholder="Search" 
+                        class="pl-4 pr-12 py-2 w-full text-base border-2 border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-500 transition"
+                    >
+                    <button class="absolute right-0 top-0 h-full w-12 text-gray-600 hover:text-gray-900 transition">
+                        <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+<nav class="main-nav shadow-2xl overflow-x-auto">
+        <div class="max-w-full mx-auto flex font-semibold justify-center">
+            <a href="https://www.mca.gov.in/" class="block nav-link">Home</a>
+            <a href="https://www.mca.gov.in/content/mca/global/en/about-us/aboutmca.html" class="block nav-link">About MCA</a>
+            <a href="https://www.mca.gov.in/content/mca/global/en/acts-rules.html" class="block nav-link">Acts & Rules</a>
+            
+            <a href="https://www.mca.gov.in/content/mca/global/en/mca-services.html" class="block nav-link">MCA Services</a>
+            <a href="https://www.mca.gov.in/content/mca/global/en/additional-services.html" class="block nav-link" >Additional Services</a>
+            <a href="#"class="active">AI powered E-Consultation</a>
+            <a href="https://www.mca.gov.in/content/mca/global/en/data-reports.html" class="block nav-link">Data & Reports</a>
+            <a href="https://www.mca.gov.in/content/mca/global/en/help-faqs.html" class="block nav-link">Help & FAQs</a>
+            <a href="https://www.mca.gov.in/content/mca/global/en/contact-us.html" class="block nav-link">Contact Us</a>
+        </div>
+    </nav>
+
+    
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4"> 
+        <p class="text-sm text-gray-500 mb-6">Home > Additional Services >E-Consultation</p>
+        
+        <div class="e-consult-header border-b-2 border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <h1 class="text-2xl font-extrabold text-gray-800 flex items-center mb-4 sm:mb-0"> 
+                    <svg class="w-7 h-7 text-blue-700 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h4"></path></svg> 
+                    E-Consultation
+                </h1>
+                
+                <div class="flex space-x-4 text-base items-center font-normal text-gray-700">
+                    <span class="sub-nav-item active">Search E-Consultation</span>
+                    <span class="sub-nav-item">Archive / History</span>
+                    <span class="sub-nav-item">Refine Search</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-8"> 
+        
+        
+
+<div class="lg:col-span-1 space-y-8">
+            
+
+<div class="content-box overflow-hidden">
+                <h2 class="text-xl font-bold text-gray-800 p-5 pb-3 border-b border-gray-100 bg-gray-50/50">The eConsultation Module</h2> 
+                <div class="p-5">
+                    <p class="text-base text-gray-700 leading-relaxed">This platform is designed to facilitate transparent, proactive, and inclusive policy-making by soliciting feedback from all stakeholders on proposed regulatory changes.</p> 
+                </div>
+            </div>
+
+            
+
+<div class="content-box p-5"> 
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-3 flex flex-col"> What is E-Consultation?
+                    <span class="orange-underline w-1/3"></span>
+                </h2>
+                <p class="text-sm text-gray-700 leading-relaxed"> 
+                    E-Consultation is an online platform wherein, proposed amendments/draft legislations can be posted, and stakeholders/users can submit their comments and suggestions. Before notifying any crucial amendment or new legislation, MCA will publish the draft document on E-Consultation portal for public consultation and inviting inputs and suggestions of external stakeholders.
+                </p>
+                <div class="mt-4 text-right">
+                    <button class="text-blue-700 text-sm font-semibold hover:text-blue-900 transition py-1 px-3 rounded-md border border-transparent hover:border-blue-300">Read More</button> 
+                </div>
+            </div>
+
+            
+
+<div class="content-box p-5" id="dueSoonBox">
+                <h3 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2">Consultations Due Soon</h3> 
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-red-50 border border-red-300 rounded-lg cursor-default"> 
+                        <span class="text-base text-gray-700 font-semibold">Today</span> 
+                        <span id="dueTodayCount" class="bg-red-600 text-white text-sm px-4 py-1 rounded-full font-bold min-w-[40px] text-center">0</span> 
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 border border-blue-300 rounded-lg cursor-default">
+                        <span class="text-base text-gray-700 font-semibold">Next 7 Days</span>
+                        <span id="dueNext7DaysCount" class="bg-blue-600 text-white text-sm px-4 py-1 rounded-full font-bold min-w-[40px] text-center">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+<div class="lg:col-span-2 space-y-8">
+            <h2 class="text-2xl font-extrabold text-gray-800 border-b-4 border-orange-500 pb-2 inline-block"> 
+                Search Documents for Public Consultation
+            </h2>
+
+            
+
+<div class="content-box p-6 bg-white shadow-xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="search-text" class="block text-sm font-medium text-gray-700 mb-1">Keyword / Document Title</label>
+                        <input type="text" id="search-text" placeholder="e.g., Company Act, Insolvency, CSR"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-700 focus:border-blue-700 transition duration-150">
+                    </div>
+                    <div>
+                        <label for="search-ministry" class="block text-sm font-medium text-gray-700 mb-1">Ministry / Department</label>
+                        <select id="search-ministry" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-blue-700 focus:border-blue-700 transition duration-150">
+                            <option value="">All Ministries</option>
+                            <option value="MCA">Ministry of Corporate Affairs (MCA)</option>
+                            <option value="Finance">Ministry of Finance</option>
+                            <option value="Commerce">Ministry of Commerce</option>
+                            <option value="External">Other/External Body</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label for="search-status" class="block text-sm font-medium text-gray-700 mb-1">Consultation Status</label>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status" value="Open" checked
+                                    class="form-radio text-green-600 focus:ring-green-500 h-4 w-4 border-gray-300">
+                                <span class="ml-2 text-gray-700 font-medium">Open for Comments</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status" value="Closed"
+                                    class="form-radio text-red-600 focus:ring-red-500 h-4 w-4 border-gray-300">
+                                <span class="ml-2 text-gray-700 font-medium">Consultation Closed</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status" value=""
+                                    class="form-radio text-gray-600 focus:ring-gray-500 h-4 w-4 border-gray-300">
+                                <span class="ml-2 text-gray-700 font-medium">All Consultations</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button id="apply-search-btn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 flex items-center">
+                        <i class="fas fa-search mr-2"></i> Apply Search
+                    </button>
+                </div>
+            </div>
+
+            
+
+<div class="mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-lg font-semibold text-gray-600"><span id="result-count" class="text-blue-700 font-bold">0</span> Results Found</p>
+                    <button id="clear-search-btn" class="text-sm text-red-600 hover:text-red-800 font-medium transition">
+                        <i class="fas fa-times-circle mr-1"></i> Clear Filters
+                    </button>
+                </div>
+                <div id="consultation-list" class="space-y-5">
+                    
+
+</div>
+                <div id="no-results-message" class="hidden content-box p-8 text-center text-gray-500 font-semibold mt-8">
+                    <i class="fas fa-exclamation-circle text-4xl mb-4 text-red-400"></i>
+                    <p class="text-xl">No consultation documents match your current search criteria.</p>
+                    <p class="mt-2">Please try broadening your search keywords or checking 'All Consultations' status.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    
+
+<footer class="main-footer">
+        <div class="footer-content">
+            <div class="quick-links-section">
+                <h3 class="footer-heading">Quick Links</h3>
+                <div class="links-columns">
+                    <ul>
+                        <li><a href="#">PMO</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">NFCG</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">Trademarks Portal</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">MyGov.in</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">Website Policies</a></li>
+                        <li><a href="#">Institute of Cost Accountants of India</a></li>
+                        <li><a href="#">XBRL V3</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="#">ICA(CA)</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">RTI Online</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">Invest India</a></li>
+                        <li><a href="#">Principal Accounts Office</a></li>
+                        <li><a href="#">IEPFA Portal</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">NSE</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="#">IRDA</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">SEBI</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">In.Registry</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">NVS Portal</a></li>
+                        <li><a href="#">RBI</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">Participate in the Fight Against Corruption</a></li>
+                        <li><a href="#">Help & FAQs</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="#">BSE</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">ICSI(CS)</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">Public Grievance Portal</a> <i class="fa-solid fa-up-right-from-square text-[0.7rem] ml-1"></i></li>
+                        <li><a href="#">Latest News</a></li>
+                        <li><a href="#">Mobile App policy</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom-bar">
+                <p class="disclaimer">Disclaimer</p>
+                <p>This site is owned by Ministry of Corporate Affairs.</p>
+                <p>Last Updated: <span id="lastUpdatedDate">24 Jul 2025</span>.</p>
+                <p>The site is best viewed in Microsoft Edge 88.0, Firefox 88.0 or Chrome 88.0</p>
+                <div class="social-media">
+                    <span>Follow us:</span>
+                    <span class="social-icon"><i class="fab fa-twitter"></i></span>
+                    <span class="social-icon"><i class="fab fa-facebook-f"></i></span>
+                    <span class="social-icon"><i class="fab fa-youtube"></i></span>
+                    <span class="social-icon"><i class="fab fa-linkedin-in"></i></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <button class="scroll-to-top-btn" id="scrollToTopBtn">&#x2191;</button>
+    
+    <script>
+        // --- Mock Data for Consultations ---
+        const consultationData = [
+            {
+                id: 1,
+                title: "Draft Rules for Digital Reporting of Financial Statements (DRFS)",
+                ministry: "MCA",
+                description: "Proposed amendments to the Companies (Accounts) Rules, 2014 concerning the mandatory digital reporting format (DRFS) for certain classes of companies.",
+                datePosted: "2025-10-01",
+                dateDue: "2025-11-05", // Due in 4 days from Nov 1
+                status: "Open"
+            },
+            {
+                id: 2,
+                title: "Consultation Paper on Revisions to the Insolvency and Bankruptcy Code (IBC)",
+                ministry: "MCA",
+                description: "Seeking stakeholder comments on proposed changes to streamline the resolution process and enhance creditor recovery under the IBC.",
+                datePosted: "2025-09-20",
+                dateDue: "2025-11-01", // Due Today
+                status: "Open"
+            },
+            {
+                id: 3,
+                title: "Amendments to Limited Liability Partnership (LLP) Rules, 2009",
+                ministry: "MCA",
+                description: "Proposal to simplify compliance procedures and decriminalize minor procedural lapses for Limited Liability Partnerships.",
+                datePosted: "2025-10-15",
+                dateDue: "2025-11-08", // Due in 7 days
+                status: "Open"
+            },
+            {
+                id: 4,
+                title: "Draft Guidelines on Corporate Social Responsibility (CSR) Implementation",
+                ministry: "MCA",
+                description: "Guidelines to clarify provisions related to the computation of CSR expenditure and applicability of the rules to foreign companies.",
+                datePosted: "2025-08-01",
+                dateDue: "2025-09-30",
+                status: "Closed"
+            },
+            {
+                id: 5,
+                title: "Discussion Paper on Regulatory Framework for Fintech Lending",
+                ministry: "Finance",
+                description: "Seeking inputs on establishing a robust regulatory framework to oversee the rapidly growing sector of Fintech lending and ensure consumer protection.",
+                datePosted: "2025-07-25",
+                dateDue: "2025-08-25",
+                status: "Closed"
+            },
+            {
+                id: 6,
+                title: "Proposed National Policy on E-Commerce and Digital Trade",
+                ministry: "Commerce",
+                description: "A comprehensive policy to promote fair trade practices, data localization, and consumer trust in the Indian e-commerce landscape.",
+                datePosted: "2025-10-25",
+                dateDue: "2025-11-15",
+                status: "Open"
+            },
+            {
+                id: 7,
+                title: "Draft Rules on Producer Responsibility Organization (PRO) Registration",
+                ministry: "External",
+                description: "Rules proposed by the Central Pollution Control Board (CPCB) on registration and operation of PROs for plastic waste management.",
+                datePosted: "2025-10-28",
+                dateDue: "2025-11-03", // Due in 2 days
+                status: "Open"
+            }
+        ];
+
+        // --- Utility Functions ---
+
+        /**
+         * Formats a date string (YYYY-MM-DD) into a readable format (DD Mth YYYY).
+         * @param {string} dateString 
+         * @returns {string} Formatted date.
+         */
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-IN', options);
+        }
+
+        /**
+         * Calculates the number of days between today and a due date.
+         * @param {string} dueDateString - The due date string.
+         * @returns {number} Days remaining.
+         */
+        function daysUntilDue(dueDateString) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(dueDateString);
+            dueDate.setHours(0, 0, 0, 0);
+
+            const diffTime = dueDate.getTime() - today.getTime();
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // --- Rendering Functions ---
+
+        /**
+         * Generates the HTML card for a single consultation document.
+         * The entire card is now a link to the login/registration page.
+         * @param {object} consultation - Consultation object.
+         * @returns {string} HTML string for the card.
+         */
+        function createConsultationCard(consultation) {
+            const daysLeft = consultation.status === 'Open' ? daysUntilDue(consultation.dateDue) : null;
+            let statusBadge = '';
+            let dateLabel = 'Due Date';
+            let dateColor = 'text-gray-600';
+
+            if (consultation.status === 'Open') {
+                if (daysLeft === 0) {
+                    statusBadge = '<span class="bg-red-700 text-white text-xs font-semibold px-3 py-1 rounded-full"><i class="fas fa-exclamation-triangle mr-1"></i> DUE TODAY</span>';
+                    dateColor = 'text-red-700 font-bold';
+                } else if (daysLeft > 0 && daysLeft <= 7) {
+                    statusBadge = `<span class="bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full">${daysLeft} DAY${daysLeft === 1 ? '' : 'S'} LEFT</span>`;
+                    dateColor = 'text-orange-500 font-bold';
+                } else if (daysLeft > 7) {
+                    statusBadge = '<span class="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full"><i class="fas fa-clock mr-1"></i> OPEN</span>';
+                } else if (daysLeft < 0) {
+                     statusBadge = '<span class="bg-red-900 text-white text-xs font-semibold px-3 py-1 rounded-full">OVERDUE (Manual Close Pending)</span>';
+                     dateColor = 'text-red-900 font-bold';
+                }
+            } else {
+                statusBadge = '<span class="bg-gray-500 text-white text-xs font-semibold px-3 py-1 rounded-full"><i class="fas fa-lock mr-1"></i> CLOSED</span>';
+                dateLabel = 'Closing Date';
+            }
+
+            // Wrapping the entire card in an <a> tag to redirect to login_registration.html
+            return `
+                <a href="login_registration.html" class="block content-box p-5 border-l-4 ${consultation.status === 'Open' ? 'border-green-600' : 'border-gray-500'} hover:shadow-lg transition duration-200 hover:scale-[1.01]">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                        <h4 class="text-xl font-bold text-gray-800 leading-snug">${consultation.title}</h4>
+                        <div class="mt-2 sm:mt-0 flex-shrink-0">${statusBadge}</div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${consultation.description}</p>
+                    
+                    <div class="flex flex-wrap justify-between items-center text-sm">
+                        <p class="text-gray-500">
+                            <i class="fas fa-university mr-1 text-blue-700"></i>
+                            <strong>Ministry:</strong> ${consultation.ministry}
+                        </p>
+                        <p class="${dateColor} mt-2 sm:mt-0">
+                            <i class="fas fa-calendar-alt mr-1"></i>
+                            ${dateLabel}: ${formatDate(consultation.dateDue)}
+                        </p>
+                        <p class="text-gray-500 mt-2 sm:mt-0">
+                            <i class="fas fa-paper-plane mr-1"></i>
+                            Posted: ${formatDate(consultation.datePosted)}
+                        </p>
+                        <!-- Updated the CTA to be a span since the whole card is the link -->
+                        <span class="text-sm text-blue-700 font-semibold hover:text-mca-orange-dark transition mt-2 sm:mt-0">
+                            View Document <i class="fas fa-arrow-right text-xs ml-1"></i>
+                        </span>
+                    </div>
+                </a>
+            `;
+        }
+
+        /**
+         * Renders the list of consultations based on the search criteria.
+         * @param {Array} data - Filtered list of consultations.
+         */
+        function renderConsultations(data) {
+            const listContainer = document.getElementById('consultation-list');
+            const resultCount = document.getElementById('result-count');
+            const noResultsMessage = document.getElementById('no-results-message');
+
+            listContainer.innerHTML = '';
+            resultCount.textContent = data.length;
+
+            if (data.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+                data.forEach(consultation => {
+                    listContainer.innerHTML += createConsultationCard(consultation);
+                });
+            }
+        }
+
+        /**
+         * Updates the 'Due Soon' section counts.
+         */
+        function updateDueSoonCounts() {
+            const todayCountElement = document.getElementById('dueTodayCount');
+            const next7DaysCountElement = document.getElementById('dueNext7DaysCount');
+            const now = new Date();
+            
+            let dueToday = 0;
+            let dueNext7Days = 0;
+
+            consultationData.forEach(c => {
+                if (c.status === 'Open') {
+                    const daysLeft = daysUntilDue(c.dateDue);
+                    if (daysLeft === 0) {
+                        dueToday++;
+                    } else if (daysLeft > 0 && daysLeft <= 7) {
+                        dueNext7Days++;
+                    }
+                }
+            });
+
+            todayCountElement.textContent = dueToday;
+            next7DaysCountElement.textContent = dueNext7Days;
+        }
+
+        /**
+         * Filters the consultation data based on the current form inputs.
+         */
+        function searchConsultations() {
+            const searchText = document.getElementById('search-text').value.toLowerCase().trim();
+            const ministryFilter = document.getElementById('search-ministry').value;
+            const statusFilter = document.querySelector('input[name="status"]:checked').value;
+
+            const filteredData = consultationData.filter(c => {
+                const matchesText = c.title.toLowerCase().includes(searchText) || c.description.toLowerCase().includes(searchText);
+                const matchesMinistry = ministryFilter === '' || c.ministry === ministryFilter;
+                const matchesStatus = statusFilter === '' || c.status === statusFilter;
+                
+                return matchesText && matchesMinistry && matchesStatus;
+            });
+
+            renderConsultations(filteredData);
+        }
+
+        // --- Event Listeners and Initial Load ---
+        window.onload = function() {
+            // Initial render of all 'Open' consultations
+            searchConsultations();
+            updateDueSoonCounts();
+            
+            // Set up search event listeners
+            document.getElementById('apply-search-btn').addEventListener('click', searchConsultations);
+            
+            document.getElementById('search-text').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') { searchConsultations(); }
+            });
+
+            // Clear Filters button functionality
+            document.getElementById('clear-search-btn').addEventListener('click', () => {
+                document.getElementById('search-text').value = '';
+                document.getElementById('search-ministry').value = '';
+                document.querySelector('input[name="status"][value="Open"]').checked = true;
+                searchConsultations();
+            });
+
+            // Scroll to Top Button functionality
+            const scrollBtn = document.getElementById('scrollToTopBtn');
+
+            window.onscroll = function() { scrollFunction() };
+
+            function scrollFunction() {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    scrollBtn.classList.add('show');
+                } else {
+                    scrollBtn.classList.remove('show');
+                }
+            }
+
+            scrollBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        };
+    </script>
+</body>
+</html>

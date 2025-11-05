@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCA User Login / Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* Define Brand Colors using CSS variables */
+        :root {
+            --mca-blue-dark: #1b3a6d; /* Primary Bar, Footer Background */
+            --mca-blue-light: #48a6a6; /* Accent Blue, Hover Color */
+            --mca-blue-bright: #007bff; /* Button primary color */
+            --mca-red: #c53030; /* Red emphasis */
+            --mca-gray-bg: #f7f7f7; /* Light background */
+            --mca-orange-dark: #ff9933; /* Orange/Saffron */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mca-gray-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .auth-container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .side-banner {
+            background-size: cover;
+            background-position: center;
+            padding: 3rem;
+            color: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .side-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(27, 58, 109, 0.9); /* Dark Blue Overlay */
+            z-index: 1;
+        }
+        
+        .side-banner > * {
+            z-index: 2;
+        }
+
+        .side-banner h2 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--mca-orange-dark);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--mca-blue-light);
+            border-radius: 50%;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .auth-form-area {
+            padding: 3rem 2rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem 0;
+            text-align: center;
+            font-weight: 700;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px; 
+        }
+
+        .tab-btn.active {
+            color: var(--mca-blue-dark);
+            border-bottom-color: var(--mca-blue-bright);
+        }
+        
+        input[type="radio"]:checked + span {
+            color: var(--mca-blue-dark);
+            font-weight: 600;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1000px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+            .side-banner {
+                display: none; /* Hide banner on smaller screens for space */
+            }
+            .auth-form-area {
+                padding: 2rem 1.5rem;
+            }
+        }
+        
+        .form-input, .form-select {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .message-box.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message-box.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        
+        <!-- Left Side Banner (As seen in the screenshot) -->
+        <div class="side-banner">
+            <h2>MCA User Login / Registration</h2>
+            <div class="space-y-4 text-left">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                    <div>
+                        <p class="font-bold text-lg">Enhanced User Experience</p>
+                        <p class="text-sm opacity-90">Seamless access to E-Consultation documents and submission forms.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                    <div>
+                        <p class="font-bold text-lg">Secured & Quick Authorization</p>
+                        <p class="text-sm opacity-90">Protecting your identity and providing fast access with OTP verification (Future Scope).</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-laptop-code"></i></div>
+                    <div>
+                        <p class="font-bold text-lg">Ease of Doing Business</p>
+                        <p class="text-sm opacity-90">Simplifying interaction with the Ministry of Corporate Affairs.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-cogs"></i></div>
+                    <div>
+                        <p class="font-bold text-lg">Service Integration</p>
+                        <p class="text-sm opacity-90">One ID for all MCA services and features.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side Form Area -->
+        <div class="auth-form-area">
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Welcome to MCA</h1>
+            
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <div id="login-tab" class="tab-btn active">LOGIN</div>
+                <div id="register-tab" class="tab-btn">REGISTER</div>
+            </div>
+
+            <!-- Message Box -->
+            <div id="message-box" class="hidden message-box"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">User ID (CIN/LLPIN/FCRN for Company/LLP and Email ID for other users)</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="Enter Email ID" required>
+                    <a href="#" class="text-xs text-blue-600 hover:text-blue-800 mt-1 block text-right">Forgot User ID?</a>
+                </div>
+                
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter Password" required>
+                    <a href="#" class="text-xs text-blue-600 hover:text-blue-800 mt-1 block text-right">Forgot Password?</a>
+                </div>
+
+                <!-- Mock Captcha -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Captcha</label>
+                    <div class="flex items-center space-x-3">
+                        <img id="captcha-image" src="https://placehold.co/120x40/f0f0f0/333333?text=q0oRbA" alt="Captcha" class="rounded-lg border">
+                        <button type="button" id="refresh-captcha-btn" class="text-gray-500 hover:text-gray-800 transition">
+                            <i class="fas fa-sync-alt"></i>
+                            <span class="text-sm ml-1">Refresh Captcha</span>
+                        </button>
+                    </div>
+                    <label for="captcha-input" class="block text-sm font-medium text-gray-700 mt-3 mb-1">Enter the Value:</label>
+                    <input type="text" id="captcha-input" class="form-input w-full" required>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                    Login
+                </button>
+            </form>
+
+            <!-- Registration Form (Initially Hidden) -->
+            <form id="registration-form" class="space-y-5 hidden">
+                <h3 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Personal Details (As per PAN)</h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label for="reg-first-name" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                        <input type="text" id="reg-first-name" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="reg-middle-name" class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                        <input type="text" id="reg-middle-name" class="form-input">
+                    </div>
+                    <div>
+                        <label for="reg-last-name" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                        <input type="text" id="reg-last-name" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="reg-dob" class="block text-sm font-medium text-gray-700 mb-1">Date Of Birth *</label>
+                        <input type="date" id="reg-dob" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
+                        <div class="flex space-x-6 mt-2">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="gender" value="Male" class="form-radio text-blue-600" required>
+                                <span class="ml-2 text-gray-700">Male</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="gender" value="Female" class="form-radio text-pink-600" required>
+                                <span class="ml-2 text-gray-700">Female</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="gender" value="Other" class="form-radio text-gray-600" required>
+                                <span class="ml-2 text-gray-700">Other</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="reg-profession" class="block text-sm font-medium text-gray-700 mb-1">Profession *</label>
+                    <select id="reg-profession" class="form-select" required>
+                        <option value="" disabled selected>Select your profession</option>
+                        <option value="Student">Student</option>
+                        <option value="Researcher">Researcher</option>
+                        <option value="Salaried Professional">Salaried Professional</option>
+                        <option value="Self-Employed">Self-Employed (Business/Consultant)</option>
+                        <option value="Retired">Retired</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4 pt-4">Login Credentials</h3>
+
+                <div>
+                    <label for="reg-email" class="block text-sm font-medium text-gray-700 mb-1">Email ID (Used for Login) *</label>
+                    <input type="email" id="reg-email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="reg-password" class="block text-sm font-medium text-gray-700 mb-1">Create Password *</label>
+                        <input type="password" id="reg-password" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="reg-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
+                        <input type="password" id="reg-confirm-password" class="form-input" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                    Register and Login
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTS ---
+        const ADMIN_EMAIL = "gokulsharma1534@gmail.com";
+        const ADMIN_PASSWORD = "gokul1180";
+        const ADMIN_DASHBOARD_URL = "http://localhost:8502";
+        const USER_DASHBOARD_URL = "e_consultation_module.html";
+        const STORAGE_KEY = 'mcaRegisteredUsers';
+        const CAPTCHA_TEXT = 'q0oRbA'; 
+
+        // --- DOM Elements ---
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginForm = document.getElementById('login-form');
+        const registrationForm = document.getElementById('registration-form');
+        const messageBox = document.getElementById('message-box');
+        const captchaInput = document.getElementById('captcha-input');
+        const refreshCaptchaBtn = document.getElementById('refresh-captcha-btn');
+
+        // --- State Management (localStorage mock database) ---
+        /**
+         * Initializes user storage, adding admin credentials if not present.
+         * @returns {Array} List of users
+         */
+        function initializeUsers() {
+            let users = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            
+            // Check if admin is already registered
+            const adminExists = users.some(user => user.email === ADMIN_EMAIL);
+            
+            if (!adminExists) {
+                users.push({
+                    email: ADMIN_EMAIL,
+                    password: ADMIN_PASSWORD, // Storing as plain text for simplicity in this demo
+                    role: 'admin',
+                    firstName: 'Gokul',
+                    lastName: 'Sharma'
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            }
+            return users;
+        }
+        
+        // --- UI Functions ---
+
+        /**
+         * Shows the appropriate form based on the selected tab.
+         * @param {string} type - 'login' or 'register'
+         */
+        function switchTab(type) {
+            if (type === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                registrationForm.classList.add('hidden');
+            } else {
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+                registrationForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+            hideMessage();
+        }
+
+        /**
+         * Displays a message box (success or error).
+         * @param {string} text - Message content.
+         * @param {string} type - 'success' or 'error'.
+         */
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = `message-box ${type}`;
+            messageBox.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the message box.
+         */
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
+        
+        /**
+         * Mock function to refresh the Captcha image (since it's a static image).
+         * In a real app, this would fetch a new image/value.
+         */
+        function refreshCaptcha() {
+            // Placeholder: The image text is constant, but we can visually reset the input
+            captchaInput.value = '';
+            captchaInput.placeholder = 'Enter the Value';
+            showMessage('Captcha refreshed. Please enter the visible characters.', 'success');
+        }
+
+        // --- Authentication Logic ---
+
+        /**
+         * Handles the login attempt.
+         * @param {Event} e - Form submission event.
+         */
+        function handleLogin(e) {
+            e.preventDefault();
+            hideMessage();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const captcha = captchaInput.value.trim().toUpperCase();
+
+            if (captcha !== CAPTCHA_TEXT.toUpperCase()) {
+                showMessage('The entered captcha value is incorrect. Please try again.', 'error');
+                return;
+            }
+
+            const users = initializeUsers();
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                if (user.role === 'admin') {
+                    // Admin redirect
+                    window.location.href = ADMIN_DASHBOARD_URL;
+                } else {
+                    // Regular user redirect
+                    window.location.href = USER_DASHBOARD_URL;
+                }
+            } else {
+                showMessage('Invalid User ID or Password. Please check your credentials.', 'error');
+            }
+        }
+
+        /**
+         * Handles the registration attempt.
+         * @param {Event} e - Form submission event.
+         */
+        function handleRegistration(e) {
+            e.preventDefault();
+            hideMessage();
+
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            const firstName = document.getElementById('reg-first-name').value.trim();
+            const middleName = document.getElementById('reg-middle-name').value.trim();
+            const lastName = document.getElementById('reg-last-name').value.trim();
+            const dob = document.getElementById('reg-dob').value;
+            const profession = document.getElementById('reg-profession').value;
+            const gender = document.querySelector('input[name="gender"]:checked')?.value;
+
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match. Please re-enter.', 'error');
+                return;
+            }
+
+            // Simple email validation
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            let users = initializeUsers();
+
+            // Check if email already exists
+            if (users.some(u => u.email === email)) {
+                showMessage('This Email ID is already registered. Please log in or use a different email.', 'error');
+                return;
+            }
+
+            // Create new user object
+            const newUser = {
+                email: email,
+                password: password, // Storing as plain text for simplicity
+                role: 'user',
+                firstName: firstName,
+                middleName: middleName,
+                lastName: lastName,
+                dob: dob,
+                profession: profession,
+                gender: gender,
+            };
+
+            users.push(newUser);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+
+            showMessage('Registration successful! Redirecting to the E-Consultation module...', 'success');
+            
+            // Redirect after a short delay
+            setTimeout(() => {
+                window.location.href = USER_DASHBOARD_URL;
+            }, 1500);
+        }
+
+        // --- Initialize ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeUsers(); // Ensure admin is created
+            switchTab('login'); // Default to login view
+
+            // Event Listeners
+            loginTab.addEventListener('click', () => switchTab('login'));
+            registerTab.addEventListener('click', () => switchTab('register'));
+            loginForm.addEventListener('submit', handleLogin);
+            registrationForm.addEventListener('submit', handleRegistration);
+            refreshCaptchaBtn.addEventListener('click', refreshCaptcha);
+        });
+
+    </script>
+</body>
+</html>

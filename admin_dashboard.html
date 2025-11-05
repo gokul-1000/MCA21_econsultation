@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCA Admin Dashboard - AI Consultation Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* MCA Brand Colors and General Styling */
+        :root {
+            --mca-blue-dark: #1b3a6d; /* Primary Header/Footer */
+            --mca-blue-light: #007bff; /* Accent Blue */
+            --mca-gray-bg: #f7f7f7; /* Light background */
+            --mca-orange: #ff9933; /* Regulator text color */
+            --mca-green: #28a745; /* Integrator text color */
+            --mca-red: #dc3545; /* Facilitator text color */
+            --mca-cyan: #17a2b8; /* Educator text color */
+            /* Sentiment Colors (from main.py) */
+            --sent-pos: #2ca02c; /* Positive Green */
+            --sent-neg: #d62728; /* Negative Red */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+        }
+
+        /* Header Styles */
+        .mca-header {
+            border-bottom: 5px solid var(--mca-blue-dark);
+            padding: 1rem 0;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .mca-nav-bar {
+            background-color: var(--mca-blue-dark);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .mca-nav-bar a {
+            padding: 0.75rem 1.5rem;
+            color: white;
+            transition: background-color 0.2s;
+            font-weight: 600;
+        }
+        .mca-nav-bar a.active, .mca-nav-bar a:hover {
+            background-color: var(--mca-blue-light);
+        }
+
+        /* Tabs Styles */
+        .admin-tab {
+            padding: 1rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            color: #4b5563;
+        }
+        .admin-tab.active {
+            color: var(--mca-blue-dark);
+            border-bottom-color: var(--mca-blue-dark);
+            background-color: var(--mca-gray-bg);
+        }
+        
+        /* Analysis Input Tabs */
+        .analysis-input-tab {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            color: #6b7280;
+        }
+        .analysis-input-tab.active {
+            color: var(--mca-blue-light);
+            border-bottom-color: var(--mca-blue-light);
+            background-color: #f3f4f6;
+        }
+        
+        /* Drag and Drop Area */
+        .drag-drop-area {
+            border: 2px dashed #9ca3af;
+            background-color: #f9fafb;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-radius: 0.75rem;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .drag-drop-area.drag-over {
+            background-color: #eff6ff;
+            border-color: var(--mca-blue-light);
+        }
+
+        .text-mca-orange { color: var(--mca-orange); }
+        .text-mca-green { color: var(--mca-green); }
+        .text-mca-red { color: var(--mca-red); }
+        .text-mca-cyan { color: var(--mca-cyan); }
+        
+        .form-input, .form-textarea {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--mca-blue-light);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        /* Custom Modal Styles */
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="message-modal" class="fixed top-0 left-1/2 -translate-x-1/2 mt-4 max-w-sm w-full bg-white p-4 rounded-lg shadow-2xl border border-gray-200 z-50 modal">
+        <p id="modal-text" class="font-semibold text-center"></p>
+        <button onclick="window.closeModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <header class="mca-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="https://placehold.co/50x50/1b3a6d/ffffff?text=MCA" alt="MCA Logo" class="w-12 h-12 rounded-lg">
+                <div>
+                    <h1 class="text-xl font-extrabold text-mca-blue-dark leading-tight">MINISTRY OF CORPORATE AFFAIRS</h1>
+                    <p class="text-xs font-semibold text-gray-500">GOVERNMENT OF INDIA</p>
+                    <p class="text-sm font-bold mt-1">
+                        EMPOWERING BUSINESS, PROTECTING INVESTORS
+                        <span class="text-mca-orange">REGULATOR</span> • 
+                        <span class="text-mca-green">INTEGRATOR</span> • 
+                        <span class="text-mca-red">FACILITATOR</span> • 
+                        <span class="text-mca-cyan">EDUCATOR</span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="hidden sm:block">
+                    <input type="search" placeholder="Search..." class="form-input w-48 text-sm">
+                </div>
+                <div class="text-mca-blue-dark font-semibold">
+                    <span id="admin-user-info">Welcome, AI Commando</span>
+                </div>
+                <button id="logout-btn" class="text-red-600 hover:text-red-800 transition">
+                    <i class="fas fa-sign-out-alt"></i> Logout (Mock)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="mca-nav-bar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-2">
+                <a href="#" class="active">Admin Home</a>
+                <a href="#">My Workspace</a>
+                <a href="#">Services</a>
+                <a href="#">Reports</a>
+                <a href="#">Help & FAQs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex border-b border-gray-200 mb-6">
+            <div id="tab-input" class="admin-tab active">
+                <i class="fas fa-file-alt mr-2"></i> Input Data for Analysis
+            </div>
+            <div id="tab-analysis" class="admin-tab">
+                <i class="fas fa-comments mr-2"></i> Comment Analysis Results
+            </div>
+            <div id="tab-external" class="admin-tab">
+                <i class="fas fa-chart-line mr-2"></i> External Data (Not Integrated)
+            </div>
+        </div>
+
+        <div id="content-input" class="tab-content">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Input Consultation Data for AI Analysis</h2>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
+                
+                <div class="border-b border-gray-200">
+                    <div class="flex -mb-px">
+                        <div id="input-tab-csv" class="analysis-input-tab active" onclick="switchInputType('csv')">
+                            <i class="fas fa-file-csv mr-1"></i> Upload CSV File
+                        </div>
+                        <div id="input-tab-paste" class="analysis-input-tab" onclick="switchInputType('paste')">
+                            <i class="fas fa-paste mr-1"></i> Copy & Paste Comments
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="policy-title" class="block text-lg font-medium text-gray-700 mb-2">Policy Topic *</label>
+                    <input type="text" id="policy-title" class="form-input" placeholder="Enter the main topic (e.g., New Corporate Tax Law)" required>
+                    <p class="text-xs text-gray-500 mt-1">This is crucial for the AI to filter and analyze comment relevance.</p>
+                </div>
+
+                <div id="input-csv-content" class="input-content">
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">Upload Comment CSV File *</label>
+                        <div id="drop-area" class="drag-drop-area" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('file-upload-input').click()">
+                            <p class="text-gray-500 mb-2">Drag and drop **CSV** file here</p>
+                            <p class="text-sm font-bold text-gray-600 mb-4">.CSV Format Required (Comments in Column 1, Optional Timestamp in Column 2)</p>
+                            <input type="file" id="file-upload-input" class="hidden" accept=".csv" required>
+                            <button type="button" class="bg-mca-blue-dark hover:bg-mca-blue-light text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                                <i class="fas fa-folder-open mr-2"></i> Browse for CSV file
+                            </button>
+                            <p id="file-status" class="mt-4 text-sm text-gray-600">No file selected.</p>
+                        </div>
+                    </div>
+                    <button id="submit-csv-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-200">
+                        <i class="fas fa-brain mr-2"></i> Run AI Analysis on CSV
+                    </button>
+                </div>
+                
+                <div id="input-paste-content" class="input-content hidden">
+                    <div>
+                        <label for="paste-comments" class="block text-lg font-medium text-gray-700 mb-2">Copy & Paste Comments *</label>
+                        <textarea id="paste-comments" class="form-textarea h-64" placeholder="Paste each comment on a new line. The AI will analyze them individually.&#10;&#10;Example:&#10;This new law is a great step for the industry.&#10;I don't agree with the compliance cost. Too much paperwork.&#10;Good job MCA!&#10;Just a test comment, ignore this." required></textarea>
+                    </div>
+                    <button id="submit-paste-btn" class="w-full bg-mca-blue-dark hover:bg-mca-blue-light text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-200">
+                        <i class="fas fa-comments mr-2"></i> Run AI Analysis on Pasted Text
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+
+        <div id="content-analysis" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">AI Comment Analysis Results</h2>
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 space-y-4">
+                <p id="analysis-brief-summary" class="text-lg font-semibold text-gray-800 border-b pb-3">
+                    <i class="fas fa-info-circle mr-2"></i> Run a new analysis in the 'Input Data' tab to see results here.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="comment-summary-cards">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center shadow-sm">
+                        <p class="text-4xl font-extrabold text-blue-700" id="total-submissions">0</p>
+                        <p class="text-sm text-blue-600">Total Comments Loaded</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg text-center shadow-sm">
+                        <p class="text-4xl font-extrabold text-green-700" id="positive-sentiment">--</p>
+                        <p class="text-sm text-green-600">Positive Comments %</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg text-center shadow-sm">
+                        <p class="text-4xl font-extrabold text-red-700" id="negative-sentiment">--</p>
+                        <p class="text-sm text-red-600">Negative Comments %</p>
+                    </div>
+                </div>
+
+                <div id="analysis-details-container" class="space-y-6 pt-4 hidden">
+                    <div class="flex justify-end">
+                        <button id="download-csv-btn" class="bg-mca-blue-dark hover:bg-mca-blue-light text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                            <i class="fas fa-download mr-2"></i> Download Full Analysis CSV
+                        </button>
+                        <a id="hidden-download-link" style="display: none;"></a>
+                    </div>
+
+                    <h3 class="text-xl font-bold pt-2">Sentiment & Keyword Breakdown</h3>
+                    <p id="analysis-detailed-summary" class="text-gray-600"></p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4 border rounded-lg shadow-sm flex flex-col items-center">
+                            <h4 class="text-lg font-medium mb-2">Sentiment Distribution</h4>
+                            <img id="pie-chart-img" class="w-full max-w-sm" alt="Sentiment Pie Chart">
+                        </div>
+                        <div class="p-4 border rounded-lg shadow-sm flex flex-col items-center">
+                            <h4 class="text-lg font-medium mb-2">Top Keywords</h4>
+                            <img id="keyword-bar-chart-img" class="w-full max-w-sm" alt="Top Keyword Bar Chart">
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold pt-4 border-t">Sentiment Trend Over Time (If Timestamps Provided)</h3>
+                    <div class="p-4 border rounded-lg shadow-sm flex flex-col items-center">
+                        <img id="sentiment-trend-chart-img" class="w-full h-auto" alt="Sentiment Trend Chart" src="https://placehold.co/800x250?text=No+Time+Data+Available">
+                    </div>
+
+                    <h3 class="text-xl font-bold pt-4 border-t">Top Repeated Comments (Sample)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 border rounded-lg">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sentiment</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="top-comments-table-body">
+                                <tr><td colspan="3" class="text-center py-4 text-gray-500">No top comments data available.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold pt-4 border-t">Named Entities Extracted</h3>
+                    <div id="named-entities-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        </div>
+                    
+                    <h3 class="text-xl font-bold pt-4 border-t">Word Clouds</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-6 flex items-center justify-center rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-medium absolute top-2 left-2 text-gray-700">All Comments</h4>
+                            <img id="wordcloud-combined-img" class="w-full h-auto" alt="Combined Word Cloud">
+                        </div>
+                        <div class="bg-gray-50 p-6 flex items-center justify-center rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-medium absolute top-2 left-2 text-green-700">Positive Comments</h4>
+                            <img id="wordcloud-positive-img" class="w-full h-auto" alt="Positive Word Cloud">
+                        </div>
+                        <div class="bg-gray-50 p-6 flex items-center justify-center rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-medium absolute top-2 left-2 text-red-700">Negative Comments</h4>
+                            <img id="wordcloud-negative-img" class="w-full h-auto" alt="Negative Word Cloud">
+                        </div>
+                        <div class="bg-gray-50 p-6 flex items-center justify-center rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-medium absolute top-2 left-2 text-gray-500">Neutral Comments</h4>
+                            <img id="wordcloud-neutral-img" class="w-full h-auto" alt="Neutral Word Cloud">
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold pt-4 border-t">AI Filtering and Cleanup Stats</h3>
+                    <div class="p-4 bg-yellow-50 rounded-lg shadow-sm">
+                        <p id="filter-stats-text" class="text-sm text-gray-700 font-medium">Comments loaded: 0 | Filtered out: 0 | Remaining for analysis: 0</p>
+                        <div id="filtered-feedback-list" class="mt-3 max-h-48 overflow-y-auto space-y-1 text-xs text-gray-600">
+                            <p class="text-gray-500">No comments were filtered out.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="content-external" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">External Data Analysis</h2>
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 space-y-4">
+                <p class="text-gray-600">This section is reserved for integrating external economic indicators, global legislative trends, or corporate data. **Integration with this API is not yet available.**</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-6 h-64 flex items-center justify-center rounded-lg border border-gray-200">
+                        <p class="text-gray-500 font-medium">Global GDP Trend Visualization Placeholder</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 h-64 flex items-center justify-center rounded-lg border border-gray-200">
+                        <p class="text-gray-500 font-medium">Industry-Specific Growth Chart Placeholder</p>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <h3 class="text-xl font-bold">Data Sources Configuration</h3>
+                    <p class="text-sm text-gray-500 mt-2">Configure APIs and data feeds here for real-time external data integration.</p>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <script>
+        // --- CONFIG ---
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        
+        // --- STATE & CACHE ---
+        let uploadedFileCache = null; // Stores the File object for download purposes
+        let currentInputType = 'csv'; // Tracks whether the last analysis was CSV or Paste
+        const sentimentColorMap = {
+            'Positive': '#2ca02c', // var(--sent-pos)
+            'Negative': '#d62728', // var(--sent-neg)
+            'Neutral': '#8c8c8c', 
+        };
+
+        // --- DOM Elements ---
+        const tabs = {
+            input: document.getElementById('tab-input'),
+            analysis: document.getElementById('tab-analysis'),
+            external: document.getElementById('tab-external'),
+        };
+        const contents = {
+            input: document.getElementById('content-input'),
+            analysis: document.getElementById('content-analysis'),
+            external: document.getElementById('content-external'),
+        };
+        
+        // Input Tabs/Contents
+        const inputTabs = { csv: document.getElementById('input-tab-csv'), paste: document.getElementById('input-tab-paste') };
+        const inputContents = { csv: document.getElementById('input-csv-content'), paste: document.getElementById('input-paste-content') };
+
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-upload-input');
+        const fileStatus = document.getElementById('file-status');
+        const submitCsvBtn = document.getElementById('submit-csv-btn');
+        const submitPasteBtn = document.getElementById('submit-paste-btn');
+        const downloadCsvBtn = document.getElementById('download-csv-btn');
+        const policyTitleInput = document.getElementById('policy-title');
+        const pasteCommentsTextarea = document.getElementById('paste-comments');
+        const hiddenDownloadLink = document.getElementById('hidden-download-link');
+        
+        // Analysis UI elements
+        const analysisDetailsContainer = document.getElementById('analysis-details-container');
+        const analysisBriefSummary = document.getElementById('analysis-brief-summary');
+        const analysisDetailedSummary = document.getElementById('analysis-detailed-summary');
+        const totalSubmissionsElement = document.getElementById('total-submissions');
+        const positiveSentimentElement = document.getElementById('positive-sentiment');
+        const negativeSentimentElement = document.getElementById('negative-sentiment');
+        const pieChartImg = document.getElementById('pie-chart-img');
+        const keywordBarChartImg = document.getElementById('keyword-bar-chart-img');
+        const sentimentTrendChartImg = document.getElementById('sentiment-trend-chart-img');
+        const topCommentsTableBody = document.getElementById('top-comments-table-body');
+        const namedEntitiesContainer = document.getElementById('named-entities-container');
+        const wordcloudCombinedImg = document.getElementById('wordcloud-combined-img');
+        const wordcloudPositiveImg = document.getElementById('wordcloud-positive-img');
+        const wordcloudNegativeImg = document.getElementById('wordcloud-negative-img');
+        const wordcloudNeutralImg = document.getElementById('wordcloud-neutral-img');
+        const filterStatsText = document.getElementById('filter-stats-text');
+        const filteredFeedbackList = document.getElementById('filtered-feedback-list');
+
+        // Modal elements
+        const messageModal = document.getElementById('message-modal');
+        const modalText = document.getElementById('modal-text');
+
+        // --- Utility Functions ---
+        
+        /**
+         * Shows a temporary message toast/modal.
+         */
+        function showMessage(message, colorClass = 'text-gray-800') {
+            modalText.textContent = message;
+            modalText.className = `font-semibold text-center ${colorClass}`;
+            messageModal.classList.add('open');
+            setTimeout(window.closeModal, 4000); // Auto-close after 4 seconds
+        }
+
+        /**
+         * Closes the message toast/modal.
+         */
+        window.closeModal = function() {
+            messageModal.classList.remove('open');
+        };
+
+        // --- Authentication (MOCK) ---
+
+        function checkAuthAndInitMock() {
+            document.getElementById('admin-user-info').textContent = "Welcome, MCA AI Admin";
+            switchTab('input');
+        }
+
+        function handleLogoutMock() {
+            localStorage.removeItem('currentUser');
+            showMessage("Logged out successfully (Mock).", 'text-green-600');
+            // window.location.href = LOGIN_PAGE_URL; // Commented out to prevent redirect in sandbox
+        }
+
+        // --- UI & Tab Functions ---
+
+        /**
+         * Switches the main tab view (Input, Analysis, External).
+         */
+        function switchTab(tabName) {
+            Object.keys(tabs).forEach(key => {
+                tabs[key].classList.remove('active');
+                contents[key].classList.add('hidden');
+            });
+
+            tabs[tabName].classList.add('active');
+            contents[tabName].classList.remove('hidden');
+        }
+        
+        /**
+         * Switches the input type (CSV vs. Paste).
+         */
+        function switchInputType(inputType) {
+            currentInputType = inputType;
+            Object.keys(inputTabs).forEach(key => {
+                inputTabs[key].classList.remove('active');
+                inputContents[key].classList.add('hidden');
+            });
+            inputTabs[inputType].classList.add('active');
+            inputContents[inputType].classList.remove('hidden');
+        }
+
+        // --- Core Analysis Functions ---
+
+        /**
+         * Handles CSV file upload and analysis submission.
+         */
+        async function handleSubmitCsv() {
+            const topic = policyTitleInput.value.trim();
+            const file = fileInput.files[0];
+
+            if (!topic) {
+                showMessage('Please enter a Policy Topic for the AI analysis context.', 'text-red-600');
+                return;
+            }
+            if (!file) {
+                showMessage('Please upload a CSV file with comments.', 'text-red-600');
+                return;
+            }
+            if (!file.name.endsWith('.csv')) {
+                 showMessage('Only **.csv** files are supported for AI analysis.', 'text-red-600');
+                 return;
+            }
+            
+            uploadedFileCache = file; // Store the file for download
+
+            const formData = new FormData();
+            formData.append('topic', topic);
+            formData.append('file', file);
+            
+            submitCsvBtn.disabled = true;
+            submitCsvBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Analyzing CSV...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/analyze/upload/`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                renderAnalysisResults(data);
+                showMessage(`AI Analysis complete! ${data.total_comments} comments loaded.`, 'text-green-600');
+                switchTab('analysis');
+                
+            } catch (error) {
+                console.error("CSV Analysis submission error:", error);
+                showMessage(`CSV Analysis failed: ${error.message}`, 'text-red-600');
+            } finally {
+                submitCsvBtn.disabled = false;
+                submitCsvBtn.innerHTML = '<i class="fas fa-brain mr-2"></i> Run AI Analysis on CSV';
+            }
+        }
+        
+        /**
+         * Handles copy-paste comments submission.
+         */
+        async function handleSubmitPaste() {
+            const topic = policyTitleInput.value.trim();
+            const comments = pasteCommentsTextarea.value.trim();
+
+            if (!topic) {
+                showMessage('Please enter a Policy Topic for the AI analysis context.', 'text-red-600');
+                return;
+            }
+            if (!comments) {
+                showMessage('Please paste some comments for analysis.', 'text-red-600');
+                return;
+            }
+            
+            uploadedFileCache = null; // Clear file cache for paste
+
+            const payload = {
+                topic: topic,
+                comments: comments
+            };
+            
+            submitPasteBtn.disabled = true;
+            submitPasteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Analyzing Paste...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/analyze/paste/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                renderAnalysisResults(data);
+                showMessage(`AI Analysis complete! ${data.total_comments} comments loaded.`, 'text-green-600');
+                switchTab('analysis');
+                
+            } catch (error) {
+                console.error("Paste Analysis submission error:", error);
+                showMessage(`Paste Analysis failed: ${error.message}`, 'text-red-600');
+            } finally {
+                submitPasteBtn.disabled = false;
+                submitPasteBtn.innerHTML = '<i class="fas fa-comments mr-2"></i> Run AI Analysis on Pasted Text';
+            }
+        }
+
+        /**
+         * Populates the Analysis tab with data received from the API.
+         */
+        function renderAnalysisResults(data) {
+            // 1. Update Summary Cards & Summaries
+            totalSubmissionsElement.textContent = data.total_comments;
+            analysisBriefSummary.innerHTML = data.brief_summary.replace(/\*\*/g, '<strong>');
+            analysisDetailedSummary.textContent = data.detailed_summary;
+            
+            // Extract percentages from pie chart data (a bit hacky but works without a separate total breakdown)
+            const sentimentData = data.charts.pie_chart_b64.match(/(\d+\.\d+)%/g) || ['0%', '0%'];
+            const positivePercentage = parseFloat(sentimentData.find(d => data.charts.pie_chart_b64.includes('Positive'))?.split('%')[0] || '0').toFixed(1);
+            const negativePercentage = parseFloat(sentimentData.find(d => data.charts.pie_chart_b64.includes('Negative'))?.split('%')[0] || '0').toFixed(1);
+            
+            // Fallback: If no labels found, calculate from data property (if API were to send raw counts)
+            positiveSentimentElement.textContent = `${positivePercentage}%`;
+            negativeSentimentElement.textContent = `${negativePercentage}%`;
+            
+            // 2. Update Charts
+            pieChartImg.src = `data:image/png;base64,${data.charts.pie_chart_b64}`;
+            keywordBarChartImg.src = `data:image/png;base64,${data.charts.keyword_bar_chart_b64}`;
+            sentimentTrendChartImg.src = data.sentiment_trend_chart_b64 ? `data:image/png;base64,${data.sentiment_trend_chart_b64}` : 'https://placehold.co/800x250?text=No+Time+Data+Available+in+Input+File';
+
+            // 3. Update Word Clouds
+            wordcloudCombinedImg.src = data.wordcloud_combined_b64 ? `data:image/png;base64,${data.wordcloud_combined_b64}` : 'https://placehold.co/400x200?text=No+Data';
+            wordcloudPositiveImg.src = data.wordcloud_positive_b64 ? `data:image/png;base64,${data.wordcloud_positive_b64}` : 'https://placehold.co/400x200?text=No+Positive+Data';
+            wordcloudNegativeImg.src = data.wordcloud_negative_b64 ? `data:image/png;base64,${data.wordcloud_negative_b64}` : 'https://placehold.co/400x200?text=No+Negative+Data';
+            wordcloudNeutralImg.src = data.wordcloud_neutral_b64 ? `data:image/png;base64,${data.wordcloud_neutral_b64}` : 'https://placehold.co/400x200?text=No+Neutral+Data';
+
+            // 4. Update Top Comments Table
+            topCommentsTableBody.innerHTML = data.top_comments.slice(0, 10).map(c => `
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="${c.comment}">${c.comment.substring(0, 50)}${c.comment.length > 50 ? '...' : ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${c.frequency}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                              style="background-color: ${c.color}20; color: ${c.color};"
+                              title="${c.tooltip}">${c.sentiment}</span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            if (data.top_comments.length === 0) {
+                 topCommentsTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">No top comments found after filtering.</td></tr>';
+            }
+
+            // 5. Update Named Entities (Re-using logic from your original code)
+            namedEntitiesContainer.innerHTML = Object.entries(data.named_entities).map(([label, entities]) => `
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <h4 class="font-bold text-gray-700">${label} (${entities.length})</h4>
+                    <ul class="list-disc list-inside mt-2 text-sm text-gray-600">
+                        ${entities.map(([name, count]) => `<li>${name} (${count})</li>`).join('')}
+                    </ul>
+                    ${entities.length === 0 ? '<p class="text-xs text-gray-400">None extracted.</p>' : ''}
+                </div>
+            `).join('');
+            
+            // 6. Update Filtering Stats
+            filterStatsText.textContent = data.tooltips.filter_stats;
+            filteredFeedbackList.innerHTML = data.filtered_feedback.map(f => `
+                <div class="p-2 border-l-4 border-yellow-300 bg-white shadow-sm hover:bg-gray-50" title="${f.reason}">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> Comment: "${f.comment.substring(0, 40)}${f.comment.length > 40 ? '...' : ''}" - **Reason:** ${f.reason}
+                </div>
+            `).join('');
+            if (data.filtered_feedback.length === 0) {
+                filteredFeedbackList.innerHTML = '<p class="text-gray-500 p-2">No comments were filtered out.</p>';
+            }
+
+            // 7. Show the container
+            analysisDetailsContainer.classList.remove('hidden');
+        }
+
+        // --- Download Function ---
+        
+        /**
+         * Handles the download of the full analysis CSV using a hidden POST form (since the API requires POST).
+         */
+        function handleDownloadCsv() {
+            const topic = policyTitleInput.value.trim();
+            if (!topic) {
+                showMessage('Please provide a topic.', 'text-red-600');
+                return;
+            }
+
+            // Determine which download endpoint to hit and what data to send
+            let downloadUrl;
+            let fileData;
+
+            if (currentInputType === 'csv' && uploadedFileCache) {
+                // Scenario 1: CSV upload. We need to recreate the FormData.
+                downloadUrl = `${API_BASE_URL}/download/upload/`;
+                
+                const form = document.createElement('form');
+                form.action = downloadUrl;
+                form.method = 'POST';
+                form.enctype = 'multipart/form-data';
+                form.style.display = 'none';
+
+                // Topic input
+                const topicInput = document.createElement('input');
+                topicInput.name = 'topic';
+                topicInput.value = topic;
+                form.appendChild(topicInput);
+
+                // File input - we must re-use the file property from the visible input
+                const fileInputClone = fileInput.cloneNode(true);
+                fileInputClone.name = 'file';
+                form.appendChild(fileInputClone);
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+                
+            } else if (currentInputType === 'paste') {
+                // Scenario 2: Paste comments. We need to POST the JSON payload.
+                downloadUrl = `${API_BASE_URL}/download/paste/`;
+                
+                // For a POST with JSON that returns a file, a simple form submit won't work well.
+                // We'll use a fetch-based approach for the paste method, which is safer.
+                
+                const comments = pasteCommentsTextarea.value.trim();
+                const payload = { topic: topic, comments: comments };
+                
+                fetch(downloadUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                         throw new Error(`Download failed: ${response.statusText}`);
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    hiddenDownloadLink.href = url;
+                    hiddenDownloadLink.download = `analysis_${topic.replace(/[^a-zA-Z0-9]/g, '_')}_paste.csv`;
+                    hiddenDownloadLink.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error("Download failed:", error);
+                    showMessage(`Download failed: ${error.message}`, 'text-red-600');
+                });
+                
+            } else {
+                showMessage('Please run a new analysis first.', 'text-red-600');
+                return;
+            }
+
+            showMessage('Initiating analysis download...', 'text-mca-blue-dark');
+        }
+
+
+        // --- File Upload Logic (UI Only) ---
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.classList.add('drag-over');
+        }
+        window.handleDragOver = handleDragOver;
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.classList.remove('drag-over');
+        }
+        window.handleDragLeave = handleDragLeave;
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                updateFileStatus(files[0]);
+            }
+        }
+        window.handleDrop = handleDrop;
+        
+        function updateFileStatus(file) {
+            if (file) {
+                 if (!file.name.endsWith('.csv')) {
+                    fileStatus.innerHTML = `<i class="fas fa-times-circle text-red-500 mr-1"></i> **Error:** Only CSV files are allowed.`;
+                    fileInput.value = ''; // Clear file input
+                    uploadedFileCache = null;
+                 } else {
+                    fileStatus.innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i> File selected: <strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)`;
+                    uploadedFileCache = file;
+                 }
+            } else {
+                fileStatus.textContent = 'No file selected.';
+                uploadedFileCache = null;
+            }
+        }
+
+        // --- Event Listeners and Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthAndInitMock();
+
+            // Main Tab handlers
+            tabs.input.addEventListener('click', () => switchTab('input'));
+            tabs.analysis.addEventListener('click', () => switchTab('analysis'));
+            tabs.external.addEventListener('click', () => switchTab('external'));
+
+            // Input field listeners
+            fileInput.addEventListener('change', (e) => updateFileStatus(e.target.files[0]));
+            submitCsvBtn.addEventListener('click', handleSubmitCsv);
+            submitPasteBtn.addEventListener('click', handleSubmitPaste);
+            downloadCsvBtn.addEventListener('click', handleDownloadCsv);
+            document.getElementById('logout-btn').addEventListener('click', handleLogoutMock);
+
+            // Default state for input tabs
+            switchInputType('csv'); 
+        });
+    </script>
+</body>
+</html>
